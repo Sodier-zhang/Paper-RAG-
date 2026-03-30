@@ -1,4 +1,4 @@
-<img width="623" height="280" alt="image" src="https://github.com/user-attachments/assets/80bf810e-783b-4195-8dfb-b9045bc49bb3" /># 模块化、全链路透明化的学术论文 RAG（检索增强生成）系统
+# 模块化、全链路透明化的学术论文 RAG（检索增强生成）系统
 本项目是一个专注于 RAG（检索增强生成）全流程细粒度拆解与分步优化的实验性系统，旨在通过对文件转换每一个关键环节的模块化处理，实现对学术论文处理流程的深度掌控与精准测试。系统基于 FAISS 向量数据库与通义千问（Qwen）大模型构建，核心流程涵盖了从原始 PDF 到最终问答的完整生命周期：首先利用解析工具将 PDF 转换为结构化的 Document 原始文档，随后经过数据清洗转化为标准 Markdown 格式以保留论文层级，接着提取标题树并实施“父子块”切分策略，最后通过向量化嵌入构建检索索引。此外，系统还集成混合检索、Query 改写及长短期记忆机制，在确保文件转换流程透明、可追溯的同时，为研究人员提供极高准确度的学术问答体验。
 
 # 🌟 项目亮点
@@ -50,8 +50,11 @@ integrated_system.py：全流程集成的 Gradio Web 应用。
 
 # 🚀 快速开始
 **1. 环境准备**
+
 确保已安装 Python 3.10+，然后安装项目依赖：
+
 pip install -r requirements.txt
+
 **2. 配置 API Key**
 在环境变量中设置以下 Key（或在代码对应处填写）：
 
@@ -64,8 +67,8 @@ LLAMAPARSE_API_KEY: LlamaIndex 解析服务 Key。
 
 全功能 Web 模式（推荐）：支持在线上传 PDF 并实时解析。
 
-Bash
 python paper_RAG/integrated_system.py
+
 API 模式：基于 FastAPI 部署。
 
 python paper_RAG/api.py
@@ -74,15 +77,7 @@ python paper_RAG/LLMgeneration/LLMgeneration.py --interactive
 
 # 📂 项目结构
 
-paper_RAG/
-├── chunk_embedding/      # 切块、向量化与FAISS索引构建
-├── LLMgeneration/        # 大模型生成、对话记忆与评估
-├── parse_pdf/            # PDF深度解析与MD清洗转换
-├── retrival/             # 混合检索测试、RRF融合与重排优化
-├── source_documents/     # 存放上传的原始PDF
-├── api.py                # FastAPI 接口服务
-├── integrated_system.py  # Gradio 综合演示系统
-└── requirements.txt      # 项目依赖清单
+<img width="623" height="280" alt="image" src="https://github.com/user-attachments/assets/80bf810e-783b-4195-8dfb-b9045bc49bb3" />
 
 # 🛠️ 关键技术细节
 **切块逻辑：** DocumentChunker 能够识别 Markdown 标题层级，避免传统长度切分带来的语义截断，最大程度保留学术论文的逻辑严密性。
