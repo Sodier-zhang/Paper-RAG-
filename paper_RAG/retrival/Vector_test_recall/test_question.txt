@@ -1,0 +1,305 @@
+Part 1: Research Background and Abstract
+1. Q: What is the core research theme of this paper?
+A: The paper focuses on Deep Neural Network (DNN) inference in Vehicular Edge Computing (VEC), specifically researching the problem of load balancing through joint model deployment and task offloading.
+
+2. Q: What is the optimization goal of this research?
+A: The objective is to minimize the maximum workload of the Roadside Units (RSUs) within the VEC system.
+
+3. Q: What constraints are considered in the optimization problem?
+A: The problem considers constraints such as the maximum tolerable response time for each inference task and the specific inference accuracy requirements.
+
+4. Q: What technology do intelligent vehicle applications (e.g., autonomous driving, pedestrian detection) primarily rely on?
+A: These applications rely on trained Deep Neural Network (DNN) models to perform inference on real-time input data.
+
+5. Q: Why are modern vehicles often unable to complete all inference requests locally?
+A: Although the computational power of modern vehicles has improved significantly, DNN inference is highly resource-intensive. The time required for local processing far exceeds the real-time requirements of the inference tasks.
+
+6. Q: What is Model Deployment?
+A: Model deployment refers to the process of installing trained DNN models on RSUs to provide services for corresponding inference tasks.
+
+7. Q: What is Task Offloading?
+A: Task offloading refers to scheduling an inference task from one RSU to another that possesses more computational resources to accelerate execution and improve Quality of Service (QoS).
+
+8. Q: Why is load balancing for DNN inference important in VEC?
+A: Since RSUs have limited computational resources, a lack of effective load balancing during simultaneous high-volume task arrivals leads to some RSUs being overloaded while others remain idle. This increases response latency and degrades overall system performance.
+
+9. Q: What algorithm does the paper propose to solve the joint optimization of model deployment and task offloading?
+A: The paper proposes a two-stage optimization algorithm called the LAMA-GAP algorithm.
+
+10. Q: What are the responsibilities of the two stages of the algorithm?
+A: The first stage develops a load-aware matching strategy (for model deployment and task offloading), while the second stage designs a strategy to offload tasks between the CPU and GPU within an RSU to further achieve load balancing.
+
+Part 2: System Model and Resource Constraints
+11. Q: What are the main components of the system architecture constructed in the paper?
+A: The system architecture consists of multiple vehicles, multiple RSUs, and a central cloud.
+
+12. Q: How do vehicles submit their inference tasks?
+A: Vehicles offload inference tasks to the RSUs within their communication range via Vehicle-to-Infrastructure (V2I) communication.
+
+13. Q: How do RSUs communicate with each other?
+A: RSUs are connected via wired links, which allows inference tasks to be offloaded from one RSU to another.
+
+14. Q: Are all RSUs equipped with GPUs?
+A: No. All RSUs are equipped with CPUs, but due to resource and cost considerations, only a portion of the RSUs are equipped with GPUs.
+
+15. Q: What role does the cloud play in the architecture?
+A: The cloud stores all trained inference models, which RSUs can download via wired connections.
+
+16. Q: How do RSUs process the task queue?
+A: RSUs process tasks in the task queue using a First-In-First-Out (FIFO) approach.
+
+17. Q: How many accuracy levels does the paper consider for each DNN model?
+A: Three different levels of inference accuracy are considered: low, medium, and high.
+
+18. Q: What is the tradeoff between model accuracy and response latency?
+A: Achieving lower inference latency may come at the cost of inference accuracy; conversely, higher-precision models typically require more storage space and longer inference times.
+
+19. Q: Given limited RSU storage, what hypothesis does the paper propose regarding model deployment?
+A: The paper assumes that for each type of model, an RSU can deploy at most one accuracy level.
+
+20. Q: What specific information is contained in an inference request packet (tuple)?
+A: It includes the input data size, requested DNN model type, minimum required accuracy level, the RSU that initially submitted the request, and the maximum tolerable response latency.
+
+21. Q: What is the model loading process when a task is executed on a GPU?
+A: Because the GPU cannot directly access the CPU main memory, the corresponding model must first be initialized in the CPU memory and then loaded into the GPU's Video RAM (VRAM).
+
+22. Q: What two parts comprise the total storage space occupied by an RSU?
+A: It includes the storage space occupied by the deployed DNN models and the storage space occupied by the input data.
+
+23. Q: Under what conditions is transmission delay generated?
+A: Transmission delay is only generated when an inference task is offloaded to an RSU different from the one to which it was initially submitted.
+
+24. Q: How is the workload (Load) of an RSU calculated?
+A: The workload of an RSU is equal to the total latency required to complete all inference tasks scheduled to that RSU.
+
+25. Q: Does the system model allow vehicles to process inference tasks locally?
+A: No. Due to limited computational resources, vehicles are not permitted to process inference tasks locally.
+
+Part 3: Problem Formulation and Algorithm Design
+26. Q: What does constraint (14) in the optimization problem ensure?
+A: It ensures that each inference task is offloaded to exactly one RSU for processing.
+
+27. Q: What is the function of constraint (16)?
+A: It ensures that an inference task is only routed to an RSU that already hosts its corresponding DNN model.
+
+28. Q: What is the constraint regarding GPU usage?
+A: Constraint (17) ensures that an inference task is only assigned to a GPU if the target RSU is equipped with one.
+
+29. Q: What does the acronym LAMA stand for?
+A: Load-Aware Matching Algorithm.
+
+30. Q: What is the core idea of a Matching Game?
+A: A matching game is a mathematical framework used to model the matching process between two sets of entities, each with its own preferences; it is widely used in resource allocation and network optimization.
+
+31. Q: What does an inference task prioritize when establishing its preference list in LAMA?
+A: Tasks prefer RSUs that can minimize their response latency to ensure the task is completed before the deadline.
+
+32. Q: What does an RSU prioritize when establishing its preference list in LAMA?
+A: RSUs prefer to execute tasks that result in the smallest increment to their workload to prevent high loads from affecting subsequent tasks.
+
+33. Q: How does LAMA sort tasks before starting the matching process?
+A: LAMA first sorts tasks in ascending order based on their maximum tolerable latency.
+
+34. Q: How does the algorithm handle an RSU that is in a state of maximum load during LAMA matching?
+A: If an RSU has the highest load and not all unmatched tasks prefer it most, the algorithm skips it and continues matching with other RSUs.
+
+35. Q: What does the acronym GAP stand for?
+A: GPU-Accelerated Task Processing Algorithm.
+
+36. Q: What is the primary purpose of the GAP algorithm?
+A: GAP determines the scheduling policy from tasks to devices (CPU or GPU) to identify which tasks should be executed on the GPU, while further ensuring system-wide load balancing.
+
+37. Q: In the GAP algorithm, what action is taken if calculations show that using a GPU improves performance?
+A: If the GPU improves performance, it will be used to execute all tasks assigned to that RSU; otherwise, the system rolls back to the initial saved state.
+
+38. Q: What problem is caused by the uneven distribution of tasks between busy urban areas and suburbs?
+A: It leads to uneven load distribution, where RSUs in busy areas may become overloaded while RSU resources in suburbs remain idle.
+
+39. Q: What is the biggest difference between LAMA and traditional matching algorithms?
+A: LAMA incorporates system load as a core factor, ensuring that the matching of tasks to RSUs promotes overall system load balancing.
+
+40. Q: What information does the first step of the GAP algorithm need to identify?
+A: It identifies the dominant task type and its highest accuracy requirement on the RSUs currently equipped with GPUs.
+
+Part 4: Experimental Simulation and Result Comparison
+41. Q: Which three specific DNN inference tasks were tested in the experimental simulation?
+A: Object detection, image classification, and semantic segmentation.
+
+42. Q: Specifically for the object detection task, which models with different accuracies were used?
+A: YOLOv8s, YOLOv8m, and YOLOv8l models were used.
+
+43. Q: What was the default maximum tolerable latency for all inference tasks in the simulation?
+A: The default value was set to 4 seconds.
+
+44. Q: Against which two baseline algorithms was LAMA-GAP compared?
+A: It was compared against a Matching-based baseline (BA-MA) and a Greedy-strategy-based baseline (BA-GR).
+
+45. Q: What is the device scheduling preference of the BA-MA baseline algorithm?
+A: It prioritizes the CPU for task execution, as it assumes the GPU is only effective when processing a sufficient number of tasks of the same type.
+
+46. Q: According to experimental results, by what percentage did LAMA-GAP reduce the maximum load compared to BA-MA when the number of tasks was 50?
+A: It reduced the maximum load by 39.3%.
+
+47. Q: What trend does the maximum load of all algorithms show as the number of RSUs increases? Why?
+A: The maximum load shows a decreasing trend because more RSUs provide more available computational resources, giving tasks more options and thus lowering the maximum load.
+
+48. Q: When the number of GPU-equipped RSUs increased to 5, how much did LAMA-GAP reduce the maximum load compared to BA-GR?
+A: The maximum load was reduced by 42.9%.
+
+49. Q: Why does increasing the number of pre-deployed DNN models on RSUs reduce the maximum load?
+A: Because the probability that an RSU already possesses the required model increases significantly, which greatly reduces model deployment latency and thus lowers the RSU load.
+
+50. Q: When the maximum tolerable latency was significantly reduced to 2 seconds, by how much did LAMA-GAP reduce the number of unfinished tasks compared to BA-MA?
+A: The number of unfinished tasks was reduced by 84.9%.
+
+Research Dataset: Two-Level Scheduling Algorithms for DNN Inference (Q51-100)
+
+51. Q: What is the primary objective of the proposed two-level scheduling problem?
+A: The objective is to minimize the total weighted sum of response time and energy consumption (total trade-off cost) for all DNN inference tasks.
+
+52. Q: Which two levels of scheduling are jointly investigated in this paper?
+A: The paper investigates task scheduling at the microarchitecture-level and the network-level.
+
+53. Q: What are the three main constraints considered in the problem formulation?
+A: The constraints include per-task response time, per-vehicle energy consumption, and per-vehicle storage capacity.
+
+54. Q: Why does the paper focus on scheduling among vehicles instead of using Roadside Units (RSUs)?
+A: Communication between vehicles and RSUs often suffers from high channel fading due to obstacles like buildings and larger distances compared to V2V connections.
+
+55. Q: What is the computational complexity of the formulated two-level scheduling problem?
+A: The paper proves that the formulated problem is NP-hard, specifically NP-complete.
+
+56. Q: What does the acronym GTA stand for in this research?
+A: GTA stands for Group Transformation based Algorithm.
+
+57. Q: How does the GTA algorithm make scheduling decisions at the two different levels?
+A: It makes network-level decisions using a group transformation approach and microarchitecture-level decisions using a greedy strategy.
+
+58. Q: What is the "total trade-off cost" defined in the paper?
+A: It is the total weighted sum of response time and energy consumption for all inference tasks in the vehicular network.
+
+59. Q: Which deep reinforcement learning (DRL) algorithm is introduced for the proposed DRL-based scheduling?
+A: Deep deterministic policy gradient (DDPG) is introduced.
+
+60. Q: What is the purpose of the "Binding" stage in the DRL algorithm?
+A: It binds layers with low and high computation delays together into blocks to reduce the exploratory action space and accelerate convergence.
+
+61. Q: Which hardware platform is used to simulate the DNN accelerator?
+A: Eyeriss is used as the representative DNN accelerator.
+
+62. Q: What are the two universal computing units considered in the vehicle model?
+A: The Central Processing Unit (CPU) and Graphics Processing Unit (GPU) are regarded as universal computing units.
+
+63. Q: How is the response time of a task defined in this system?
+A: It is the period from when a task arrives to when it is completed, comprising computation delay, communication delay, and waiting time.
+
+64. Q: What is the role of the RSU in the described system model?
+A: The RSU in the road segment is regarded as a local controller that obtains information from each vehicle within its communication coverage.
+
+65. Q: Which protocol is used for Vehicle-to-Vehicle (V2V) communication in the simulations?
+A: V2V communication is implemented by protocol 802.11p in the NS-3 simulator.
+
+66. Q: What are the two critical factors used to evaluate the Quality of Computing Services (QoS)?
+A: Response time and energy consumption are the two critical factors.
+
+67. Q: According to the paper, which layers can be processed by the Eyeriss accelerator?
+A: The accelerator Eyeriss is customized for and only can accelerate convolution layers or fully connected layers.
+
+68. Q: What does the "GTA_Net" strategy represent in the performance analysis?
+A: It represents a strategy where GTA only schedules inference tasks at the network-level, with each vehicle processing tasks on its CPU.
+
+69. Q: How is the "reward" defined in the pre-training stage (PRE) of the DRL algorithm?
+A: It is defined as the difference between the total trade-off costs generated before and after executing an action for all layers of tasks in L.
+
+70. Q: What happens to the reward if a scheduling decision violates the response time or energy constraints?
+A: The reward is set to negative infinity (-inf) if constraints are not met.
+
+71. Q: Which four DNN models were selected to evaluate the algorithms for heterogeneous tasks?
+A: NiN, MobileNetV3-Small, ResNet18, and VGG16.
+
+72. Q: In the system model, what is the default "effective capacitance" value used for energy calculation?
+A: It is set to 10^-27 by default.
+
+73. Q: What is the purpose of the "Memory Pool" in the DRL framework?
+A: It is used to store scheduling experiences to facilitate random sampling for training, which improves stability.
+
+74. Q: What is a "Task Group" according to Definition 2?
+A: The set of the tasks located in a vehicle is called a task group for that vehicle.
+
+75. Q: How does the paper prove Theorem 1 regarding NP-completeness?
+A: It shows that a special case of the proposed problem P can be reduced to a 0-1 knapsack problem (KP).
+
+76. Q: What is the specific data size of the input image for the DNN inference tasks?
+A: The input is an image with 224x224x3 pixels and its data size is 147 KB.
+
+77. Q: What is the "valuation" of a group family in the GTA algorithm?
+A: The valuation of a group family is the sum of the valuations of all task groups it contains.
+
+78. Q: How much did GTA and DRL reduce the trade-off cost on average compared to baseline algorithms?
+A: GTA and DRL reduced the total weighted sum by 41.49% and 62.38%, respectively.
+
+79. Q: Which simulator was used to generate vehicle trajectories?
+A: Vehicle trajectories are generated by SUMO using the "randomTrips.py" script.
+
+80. Q: What is the "GS" strategy mentioned in the algorithm section?
+A: GS is a greedy strategy proposed to schedule an inference task at the microarchitecture-level.
+
+81. Q: Why is the mobility of vehicles considered a major challenge for scheduling?
+A: High mobility leads to rapid changes in relative locations and transmission rates, making offloading decisions based on current state potentially unsuitable for the next state.
+
+82. Q: What are the weights alphai and betai used for in the objective function?
+A: They reflect the preference and importance of response time and energy consumption, respectively, on the QoS of a task.
+
+83. Q: What does the term "failed task" mean in the simulation context?
+A: A failed task is one unsuccessfully executed due to data loss in communication or failure to satisfy problem constraints.
+
+84. Q: Which CPU hardware was Intel-based in the microarchitecture-level simulation?
+A: A desktop with an Intel(R) Core(TM) i7-6700 CPU @ 3.4GHz.
+
+85. Q: How often are the parameters of the target network updated in the DRL algorithm?
+A: They are updated to match the parameters of the value network every v steps.
+
+86. Q: What is the "Group Transformation Rule" (Definition 6)?
+A: A group family G is transformed to G' if and only if the valuation of G' is higher than G.
+
+87. Q: In the DRL state definition, what information does lij represent?
+A: It represents the trade-off cost for layer rij(t) in the set of fully connected or convolution layers.
+
+88. Q: What is the maximum speed limit set for vehicles in the SUMO simulation?
+A: The maximum speed is set to 40 km/h, reflecting the real road environment limits.
+
+89. Q: Which baseline algorithm (BA-TN) is inspired by coalition game theory?
+A: BA-TN is customized based on coalition game theory for indivisible task scheduling at the network-level.
+
+90. Q: According to Fig. 14, are network-level or microarchitecture-level contributions larger for the proposed algorithms?
+A: The contributions at the network-level are larger than those at the microarchitecture-level for both GTA and DRL.
+
+91. Q: What map area was used for the road topology simulation?
+A: A real road area of streets in Guangzhou Higher Education Mega Center obtained by OSM.
+
+92. Q: What is the default number of hidden neurons used in the DRL and PRE models?
+A: Both the value network and target network have one hidden layer with 128 neurons.
+
+93. Q: How does the algorithm ensure that layers are executed in the correct sequence?
+A: Constraint (41) ensures a later layer must be executed after the preceding layer is completed and its required input data is transferred.
+
+94. Q: What does the indicator uk represent?
+A: It is a binary indicator where uk=1 represents that vehicle vk is equipped with an accelerator.
+
+95. Q: What was the simulation result regarding GTA's stability?
+A: Theorem 3 proves that the resulting group family generated by the GTA algorithm is stable.
+
+96. Q: Which tool was used to implement Eyeriss on the simulator?
+A: Eyeriss was implemented on the simulator Scale-Sim.
+
+97. Q: How does the total trade-off cost change as the number of vehicles (n) increases?
+A: The total trade-off cost generally decreases because the total computing ability of the vehicular network increases.
+
+98. Q: What was the observed performance of DRL when tasks are highly sensitive to response time (high alpha)?
+A: DRL performs significantly better as the value of alpha increases, reducing total cost more effectively when tasks are time-sensitive.
+
+99. Q: What is the relationship between "TD method" and the Q-function update?
+A: The value of the Q-function is updated by exploiting the temporal difference (TD) method.
+
+100. Q: For future work, which mechanisms are suggested to encourage resource sharing among vehicles?
+A: Auction or coalition games may be exploited to encourage vehicles to share their computing resources.

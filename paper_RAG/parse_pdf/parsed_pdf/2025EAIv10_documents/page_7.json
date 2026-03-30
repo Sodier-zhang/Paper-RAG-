@@ -1,0 +1,5 @@
+{
+  "page": 7,
+  "text": "\nLoad Balancing for DNN Inference in VEC\n\n# 3.3 Storage Capacity\n\nIf an inference task is offloaded to RSU r, it will occupy storage space of RSU for execution. The deployment of DNN models requires a portion of the storage capacity, the occupied storage capacity sdr is calculated as,\n\nsdr = ∑m=13 ∑p=1X xmprcmp.\n\nAdditionally, let sir denote the input data for the inference tasks also take up storage capacity, which can be calculated as,\n\nsir = ∑j=1N ∑k=1nj yjkrdjk.\n",
+  "metadata": {}
+}
